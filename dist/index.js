@@ -31,7 +31,7 @@ function getColors() {
             const colors = Array.from($('div.colorbox'), a => {
                 const aw = $(a);
                 const hexvalue = aw.find('span.colorhexspan a').text();
-                const colorname = aw.find('span.colornamespan ').text();
+                const colorname = aw.find('span.colornamespan a').text();
                 return ({
                     hex: hexvalue,
                     name: colorname,

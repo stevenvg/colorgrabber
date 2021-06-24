@@ -40,7 +40,7 @@ async function getColors() {
 
       const aw = $(a);
       const hexvalue = aw.find('span.colorhexspan a').text()
-      const colorname = aw.find('span.colornamespan ').text()
+      const colorname = aw.find('span.colornamespan a').text()
 
       return ({
         hex: hexvalue,
