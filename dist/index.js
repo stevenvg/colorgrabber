@@ -13,50 +13,56 @@ const got_1 = require("got");
 const cheerio = require("cheerio");
 const fs = require("fs");
 const canvas_1 = require("canvas");
-const width = 40;
-const height = 40;
+const config = {
+    file: {
+        width: 40,
+        height: 40,
+        mime: 'image/png',
+        ext: '.png',
+        path: './export/'
+    },
+    uri: 'https://www.w3schools.com/colors/colors_names.asp'
+};
 function getColors() {
     return __awaiter(this, void 0, void 0, function* () {
-        const w3schoolsUrl = 'https://www.w3schools.com/colors/colors_names.asp';
         try {
-            const page = yield got_1.default(w3schoolsUrl);
+            const page = yield got_1.default(config.uri);
             const $ = cheerio.load(page.body);
-            const colors = Array.from($('div.colorbox'), (a, i) => {
+            const colors = Array.from($('div.colorbox'), a => {
                 const aw = $(a);
                 const hexvalue = aw.find('span.colorhexspan a').text();
                 const colorname = aw.find('span.colornamespan ').text();
                 return ({
-                    id: i,
                     hex: hexvalue,
-                    colorname: colorname,
+                    name: colorname,
                 });
             });
             return colors;
         }
         catch (error) {
-            console.log(error);
+            return error;
         }
     });
 }
 function processImages(data) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            for (let c of data) {
-                const canvas = canvas_1.createCanvas(width, height);
-                const context = canvas.getContext('2d');
-                context.fillStyle = c.hex;
-                context.fillRect(0, 0, width, height);
-                const buffer = canvas.toBuffer('image/png');
-                fs.writeFileSync('./export/' + c.colorname + '.png', buffer);
+            for (let color of data) {
+                const canvas = canvas_1.createCanvas(config.file.width, config.file.height);
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = color.hex;
+                ctx.fillRect(0, 0, config.file.width, config.file.height);
+                const buffer = canvas.toBuffer(config.file.mime);
+                fs.writeFileSync(config.file.path + color.name + config.file.ext, buffer);
             }
         }
         catch (error) {
-            console.log(error);
+            return error;
         }
     });
 }
-getColors().then(data => {
-    processImages(data).then(() => {
-        console.log(`saved ${data.length} colors.`);
-    });
-});
+getColors().then(colors => {
+    processImages(colors).then(() => {
+        console.log(`saved ${colors.length} colors.`);
+    }).catch(e => { console.log(e); });
+}).catch(e => { console.log(e); });
